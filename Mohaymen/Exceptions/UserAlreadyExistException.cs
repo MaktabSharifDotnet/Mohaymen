@@ -6,9 +6,9 @@ using System.Threading.Tasks;
 
 namespace Mohaymen.Exceptions
 {
-    public class UserNotFoundException : VallidationException
+    internal class UserAlreadyExistException : VallidationException
     {
-        public UserNotFoundException(string message) : base(message)
+        public UserAlreadyExistException(string message) : base(message)
         {
         }
     }

@@ -1,6 +1,7 @@
 ﻿using Mohaymen.DataAccess;
 using Mohaymen.Enums;
 using Mohaymen.Exceptions;
+using Mohaymen.Manager;
 using Mohaymen.repositories;
 using System;
 using System.Collections.Generic;
@@ -33,6 +34,17 @@ namespace Mohaymen.Services
             };
             _userRepository.AddUser(newUser);
         }
- 
+
+        public void Login(string username, string pass) 
+        {
+            User? user = _userRepository.GetUserByUsername(username);
+            if (user == null || user.Password != pass)
+            {
+                throw new UserNotFoundException("The username or password is incorrect.");
+            }
+            
+            LocalStorage.Login(user);
+        }
+
     }
 }
