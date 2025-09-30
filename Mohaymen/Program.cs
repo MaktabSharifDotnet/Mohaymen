@@ -168,12 +168,12 @@ while (true)
                     }
                     break;
                 case 4:
-                    Console.WriteLine("please enter command for Sent:");
+                    Console.WriteLine("please enter command for Inbox:");
                     string commandSent = Console.ReadLine();
                     try 
                     {
                         InstructionEnum instruction = (InstructionEnum)Enum.Parse(typeof(InstructionEnum), commandSent);
-                        if (InstructionEnum.Sent==instruction) 
+                        if (InstructionEnum.Inbox==instruction) 
                         {
                             List<Message> messages = service.Inbox();
                             ShowMessage(messages);

@@ -13,6 +13,7 @@ namespace Mohaymen.Enums
         Change,
         Search,
         SendMessage,
-        Sent
+        Sent,
+        Inbox
     }
 }
