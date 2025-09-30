@@ -14,37 +14,35 @@ namespace Mohaymen.Services
     public class Service
     {
         private readonly UserRepository _userRepository;
+
         public Service(UserRepository userRepository)
         {
             _userRepository = userRepository;
         }
 
-        public void Register(string username , string pass) 
+        public void Register(string username , string password) 
         {
-            User? user=_userRepository.GetUserByUsername(username);
-            if (user!=null)
+            User? userFromDb=_userRepository.GetUserByUsername(username);
+            if (userFromDb!=null)
             {
-                throw new UserAlreadyExistException("A user with the same username has already registered.");
+                throw new UserAlreadyExistException("A user with this username has already registered.");
             }
-            var newUser = new User
-            {
-                Username = username,
-                Password=pass,
-                Status= StatusEnum.available
+            User user = new User 
+            { 
+              Username = username,
+              Password = password,
+              Status=StatusEnum.available,                       
             };
-            _userRepository.AddUser(newUser);
+            _userRepository.AddUser(user);
         }
-
-        public void Login(string username, string pass) 
+        public void Login(string username, string password) 
         {
-            User? user = _userRepository.GetUserByUsername(username);
-            if (user == null || user.Password != pass)
+            User? userFromDb = _userRepository.GetUserByUsername(username);
+            if (userFromDb == null || userFromDb.Password!=password)
             {
                 throw new UserNotFoundException("The username or password is incorrect.");
             }
-            
-            LocalStorage.Login(user);
+            LocalStorage.Login(userFromDb);
         }
-
     }
 }

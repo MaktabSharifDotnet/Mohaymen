@@ -4,46 +4,62 @@ using Mohaymen.Enums;
 using Mohaymen.Exceptions;
 using Mohaymen.repositories;
 using Mohaymen.Services;
+using System.IO;
 
-AppDbContext context = new AppDbContext();
-UserRepository userRepository = new UserRepository(context);
+AppDbContext appDbContext = new AppDbContext();
+UserRepository userRepository = new UserRepository(appDbContext);
 Service service = new Service(userRepository);
 
 while (true)
 {
-    Console.WriteLine("please enter command");
-
+    Console.WriteLine("please enter command:");
     string command = Console.ReadLine();
-    string[] instructionParts = command.Split(' ');
+    string[] commandParts = command.Split(' ');
     try
     {
-        Enum instruction = (Enum)Enum.Parse(typeof(InstructionEnum), instructionParts[0]);
-        switch (instruction)
+        InstructionEnum instructionEnum = (InstructionEnum)Enum.Parse(typeof(InstructionEnum), commandParts[0]);
+        switch (instructionEnum)
         {
             case InstructionEnum.Register:
 
-                AuthenticationDto registerCommandDto = ParseAuthCommand(instructionParts);
-                if (registerCommandDto.Username == null || registerCommandDto.Password == null)
+                AuthenticationDto authentication = ParseAuthCommand(commandParts);
+                if (authentication.Username == null || authentication.Password == null)
                 {
-                    Console.WriteLine("invalid command");
+                    Console.WriteLine("The username or password is invalid or empty.");
                 }
                 else
                 {
-                    service.Register(registerCommandDto.Username, registerCommandDto.Password);
-                    Console.WriteLine("register is done");
-                }
+                    try 
+                    {
+                        service.Register(authentication.Username, authentication.Password);
+                        Console.WriteLine("register is done");
+                    }
+                    catch (UserAlreadyExistException e)
+                    {
+                        Console.WriteLine(e.Message);
+                    }
 
+                }
                 break;
             case InstructionEnum.Login:
-                registerCommandDto = ParseAuthCommand(instructionParts);
-                if (registerCommandDto.Username == null || registerCommandDto.Password == null)
+
+                 authentication = ParseAuthCommand(commandParts);
+                if (authentication.Username == null || authentication.Password == null)
                 {
-                    Console.WriteLine("invalid command");
+                    Console.WriteLine("The username or password is invalid or empty.");
                 }
                 else
                 {
-                    service.Login(registerCommandDto.Username, registerCommandDto.Password);
-                    Console.WriteLine("Login is done");
+                    try
+                    {
+                        service.Login(authentication.Username, authentication.Password);
+                        Console.WriteLine("Login is done");
+                    }
+                    catch (UserNotFoundException e)
+                    {
+                        Console.WriteLine(e.Message);
+                    }
+
                 }
 
                 break;
@@ -51,45 +67,31 @@ while (true)
     }
     catch (ArgumentException)
     {
-        Console.WriteLine("The input is invalid.  ");
+        Console.WriteLine("invalid command");
     }
-    catch (UserAlreadyExistException e)
-    {
-        Console.WriteLine(e.Message);
-    }
-    catch (UserNotFoundException e)
-    {
-        Console.WriteLine(e.Message);
-    }
+   
 
-}
-AuthenticationDto ParseAuthCommand(string[] instructionParts) 
-{
-    string username = null;
-    string password = null;
-    for (int i = 0; i < instructionParts.Length; i++)
+    AuthenticationDto ParseAuthCommand(string[] instructionParts) 
     {
-        if (instructionParts[i] == "--username")
+        string username = null;
+        string password = null;
+        for (int i = 0; i < commandParts.Length; i++)
         {
-
-            if (i + 1 < instructionParts.Length && !instructionParts[i + 1].StartsWith("--"))
+            if (commandParts[i] == "--username" && i + 1 < commandParts.Length && !commandParts[i + 1].StartsWith("--"))
             {
-                username = instructionParts[i + 1];
+                username = commandParts[i + 1];
+            }
+            if (commandParts[i] == "--password" && i + 1 < commandParts.Length && !commandParts[i + 1].StartsWith("--"))
+            {
+                password = commandParts[i + 1];
             }
         }
-        else if (instructionParts[i] == "--password")
+        AuthenticationDto authenticationDto = new AuthenticationDto 
         {
-
-            if (i + 1 < instructionParts.Length && !instructionParts[i + 1].StartsWith("--"))
-            {
-                password = instructionParts[i + 1];
-            }
-        }
+            Username = username,
+            Password= password
+        };
+        return authenticationDto;
     }
-    AuthenticationDto registerCommandDto = new AuthenticationDto 
-    {
-      Username = username,
-      Password = password
-    };
-    return registerCommandDto;
+
 }
