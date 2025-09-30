@@ -1,4 +1,5 @@
-﻿using Mohaymen.DataAccess;
+﻿using Microsoft.EntityFrameworkCore;
+using Mohaymen.DataAccess;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -21,6 +22,14 @@ namespace Mohaymen.repositories
         {
             _context.Messages.Add(message);
             _context.SaveChanges();
+        }
+
+        public List<Message> Inbox(int userId) 
+        {
+           return _context.Messages
+                .Include(m => m.Sender)
+                .Where(m => m.ReceiverId == userId)
+                .ToList();       
         }
     }
 }

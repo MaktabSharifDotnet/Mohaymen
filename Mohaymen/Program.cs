@@ -167,6 +167,28 @@ while (true)
                         Console.WriteLine(e.Message);
                     }
                     break;
+                case 4:
+                    Console.WriteLine("please enter command for Sent:");
+                    string commandSent = Console.ReadLine();
+                    try 
+                    {
+                        InstructionEnum instruction = (InstructionEnum)Enum.Parse(typeof(InstructionEnum), commandSent);
+                        if (InstructionEnum.Sent==instruction) 
+                        {
+                            List<Message> messages = service.Inbox();
+                            ShowMessage(messages);
+                        }
+                        else 
+                        {
+                            Console.WriteLine("command is wrong ");
+                        }
+                    }
+                    catch (ArgumentException) 
+                    {
+                        Console.WriteLine("invalid commandSent please enter Sent");
+                    }
+                   
+                    break;
 
             }
         }
@@ -263,8 +285,16 @@ void ShowMenu()
     Console.WriteLine("1.ChangeStatus");
     Console.WriteLine("2.Search");
     Console.WriteLine("3.send message");
+    Console.WriteLine("4.Inbox");
 }
+void ShowMessage(List<Message> messages) 
+{
+    foreach (var message in messages)
+    {
+        Console.WriteLine($"From:{message.Sender.Username}|{message.Text}");
+    }
 
+}
 void ShowUsers()
 {
     List<User> users = service.GetUsers();

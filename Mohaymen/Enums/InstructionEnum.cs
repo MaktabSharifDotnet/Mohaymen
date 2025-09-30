@@ -12,6 +12,7 @@ namespace Mohaymen.Enums
         Login,
         Change,
         Search,
-        SendMessage
+        SendMessage,
+        Sent
     }
 }

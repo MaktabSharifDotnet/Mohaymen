@@ -100,5 +100,15 @@ namespace Mohaymen.Services
             };
             _messageRepository.Add(message);
         }
+
+        public List<Message> Inbox() 
+        {
+            if (LocalStorage.LoginUser == null)
+            {
+                throw new NotLogInException("User is not logged in.");
+            }
+            
+           return _messageRepository.Inbox(LocalStorage.LoginUser.Id);
+        }
     }
 }
