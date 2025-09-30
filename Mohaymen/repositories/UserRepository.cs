@@ -15,9 +15,6 @@ namespace Mohaymen.repositories
         {
             _context = context;
         }
-
-      
-
         public User?  GetUserByUsername(string username) 
         {
           return _context.Users.FirstOrDefault(u=>u.Username == username);
@@ -27,6 +24,22 @@ namespace Mohaymen.repositories
         {
            _context.Users.Add(user);
             _context.SaveChanges();
+        }
+
+        public void UpdateUser(User user) 
+        {
+          _context.Users.Update(user);
+          _context.SaveChanges();
+        }
+
+        public List<User> SearchUsername(string username) 
+        {
+           return _context.Users.Where(u=>u.Username.Contains(username)).ToList();
+        }
+
+        public List<User> GetUsers() 
+        {
+           return _context.Users.ToList();
         }
     }
 }

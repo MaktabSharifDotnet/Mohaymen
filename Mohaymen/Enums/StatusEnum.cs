@@ -9,6 +9,6 @@ namespace Mohaymen.Enums
     public enum StatusEnum
     {
         available=1,
-        notAvailable=2,
+        notavailable=2,
     }
 }
