@@ -41,5 +41,12 @@ namespace Mohaymen.repositories
         {
            return _context.Users.ToList();
         }
+
+        public void UpdatePass(string logInUsername ,string newPass) 
+        {
+            User user=GetUserByUsername(logInUsername);
+            user.Password = newPass;
+            _context.SaveChanges();
+        }
     }
 }

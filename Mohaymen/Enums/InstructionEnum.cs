@@ -14,6 +14,8 @@ namespace Mohaymen.Enums
         Search,
         SendMessage,
         Sent,
-        Inbox
+        Inbox,
+        ChangePassword,
+        Logout
     }
 }

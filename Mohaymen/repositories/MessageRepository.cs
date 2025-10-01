@@ -1,5 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Mohaymen.DataAccess;
+using Mohaymen.DTOs;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -30,6 +31,17 @@ namespace Mohaymen.repositories
                 .Include(m => m.Sender)
                 .Where(m => m.ReceiverId == userId)
                 .ToList();       
+        }
+
+        public List<SentMessageDto> Sent(int userId) 
+        {
+           return  _context.Messages
+                .Where(m => m.SenderId == userId).Select(m => new SentMessageDto
+                {
+                    Username = m.Receiver.Username,
+                    Text = m.Text
+                })
+                .ToList();
         }
     }
 }

@@ -10,7 +10,7 @@ using System.Collections.Generic;
 AppDbContext context = new AppDbContext();
 UserRepository userRepository = new UserRepository(context);
 MessageRepository messageRepository = new MessageRepository(context);
-Service service = new Service(userRepository , messageRepository);
+Service service = new Service(userRepository, messageRepository);
 
 while (true)
 {
@@ -169,27 +169,100 @@ while (true)
                     break;
                 case 4:
                     Console.WriteLine("please enter command for Inbox:");
-                    string commandSent = Console.ReadLine();
-                    try 
+                    string commandInbox = Console.ReadLine();
+                    try
                     {
-                        InstructionEnum instruction = (InstructionEnum)Enum.Parse(typeof(InstructionEnum), commandSent);
-                        if (InstructionEnum.Inbox==instruction) 
+                        InstructionEnum instruction = (InstructionEnum)Enum.Parse(typeof(InstructionEnum), commandInbox);
+                        if (InstructionEnum.Inbox == instruction)
                         {
-                            List<Message> messages = service.Inbox();
-                            ShowMessage(messages);
+                            List<Message> messages1 = service.Inbox();
+                            ShowMessage(messages1);
                         }
-                        else 
+                        else
                         {
                             Console.WriteLine("command is wrong ");
                         }
                     }
-                    catch (ArgumentException) 
+                    catch (ArgumentException)
                     {
                         Console.WriteLine("invalid commandSent please enter Sent");
                     }
-                   
-                    break;
 
+                    break;
+                case 5:
+                    Console.WriteLine("please enter command for Sent:");
+                    string commandSent = Console.ReadLine();
+                    try
+                    {
+                        InstructionEnum instructionEnum = (InstructionEnum)Enum.Parse(typeof(InstructionEnum), commandSent);
+                        if (InstructionEnum.Sent == instructionEnum)
+                        {
+                            List<SentMessageDto> messages = service.Sent();
+                            ShowSent(messages);
+                        }
+
+                    }
+                    catch (ArgumentException)
+                    {
+                        Console.WriteLine("invalid instruction commandSent is Sent");
+                    }
+
+
+                    break;
+                case 6:
+                    Console.WriteLine("please enter command for ChangePass:");
+                    string commandChangePass = Console.ReadLine();
+                    string[] commandChangePassArray = commandChangePass.Split(" ");
+                    try
+                    {
+                        InstructionEnum instructionEnum = (InstructionEnum)Enum.Parse(typeof(InstructionEnum), commandChangePassArray[0]);
+                        if (InstructionEnum.ChangePassword == instructionEnum)
+                        {
+                            ChangePassDto changePassDto = ParseChangePassCommand(commandChangePassArray);
+                            try
+                            {
+                                service.ChangePass(changePassDto.OldPass, changePassDto.NewPass);
+                                Console.WriteLine("Change Pass is done");
+                            }
+                            catch (NotLogInException e)
+                            {
+                                Console.WriteLine(e.Message);
+                            }
+
+                        }
+                        else
+                        {
+                            Console.WriteLine("invalid command for ChangePass");
+                        }
+                    }
+                    catch (ArgumentException)
+                    {
+                        Console.WriteLine("invalid command ");
+                    }
+
+                    break;
+                case 7:
+                    Console.WriteLine("please enter command for logout");
+                    string commandLogout = Console.ReadLine();
+                    try 
+                    {
+                        InstructionEnum instructionEnum = (InstructionEnum)Enum.Parse(typeof(InstructionEnum), commandLogout);
+                        if (InstructionEnum.Logout == instructionEnum)
+                        {
+
+                            service.Logout();
+                        }
+                    }
+                    catch (ArgumentException) 
+                    {
+                        Console.WriteLine("invalid command");
+                    }
+                    catch(NotLogInException e) 
+                    {
+                        Console.WriteLine(e.Message);
+                    }
+                    
+                    break;
             }
         }
         catch (FormatException)
@@ -262,11 +335,11 @@ SendMessageDto ParseSendMessageCommand(string[] instructionParts)
     string text = null;
     for (int i = 0; i < instructionParts.Length; i++)
     {
-        if (instructionParts[i] == "--to" && i + 1 < instructionParts.Length  && !instructionParts[i + 1].StartsWith("--"))
+        if (instructionParts[i] == "--to" && i + 1 < instructionParts.Length && !instructionParts[i + 1].StartsWith("--"))
         {
             username = instructionParts[i + 1];
         }
-        if (instructionParts[i] == "--text" && i + 1 < instructionParts.Length  && !instructionParts[i + 1].StartsWith("--"))
+        if (instructionParts[i] == "--text" && i + 1 < instructionParts.Length && !instructionParts[i + 1].StartsWith("--"))
         {
             text = instructionParts[i + 1];
         }
@@ -279,6 +352,29 @@ SendMessageDto ParseSendMessageCommand(string[] instructionParts)
     return send;
 
 }
+
+ChangePassDto ParseChangePassCommand(string[] commandChangePassArray)
+{
+    string oldPass = null;
+    string newPass = null;
+    for (int i = 1; i < commandChangePassArray.Length; i++)
+    {
+        if (commandChangePassArray[i] == "--old" && i + 1 < commandChangePassArray.Length && !commandChangePassArray[i + 1].StartsWith("--"))
+        {
+            oldPass = commandChangePassArray[i+1];
+        }
+        if (commandChangePassArray[i] == "--new" && i + 1 < commandChangePassArray.Length && !commandChangePassArray[i + 1].StartsWith("--"))
+        {
+            newPass = commandChangePassArray[i+1];
+        }
+    }
+    ChangePassDto passDto = new ChangePassDto
+    {
+        NewPass = newPass,
+        OldPass = oldPass
+    };
+    return passDto;
+}
 void ShowMenu()
 {
     Console.WriteLine("Select the desired option.");
@@ -286,8 +382,18 @@ void ShowMenu()
     Console.WriteLine("2.Search");
     Console.WriteLine("3.send message");
     Console.WriteLine("4.Inbox");
+    Console.WriteLine("5.Sent");
+    Console.WriteLine("6.ChangePass");
+    Console.WriteLine("7.Logout");
 }
-void ShowMessage(List<Message> messages) 
+void ShowSent(List<SentMessageDto> messages)
+{
+    foreach (var message in messages)
+    {
+        Console.WriteLine($"to:{message.Username} | {message.Text}");
+    }
+}
+void ShowMessage(List<Message> messages)
 {
     foreach (var message in messages)
     {
@@ -300,10 +406,10 @@ void ShowUsers()
     List<User> users = service.GetUsers();
     foreach (User user in users)
     {
-        if (LocalStorage.LoginUser.Id!=user.Id)
+        if (LocalStorage.LoginUser.Id != user.Id)
         {
             Console.WriteLine($"userId:{user.Id} , username:{user.Username}");
-        }     
+        }
     }
 }
 void DisplayUsers(List<User> users)

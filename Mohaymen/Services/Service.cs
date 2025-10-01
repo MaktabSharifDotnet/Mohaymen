@@ -1,4 +1,5 @@
 ﻿using Mohaymen.DataAccess;
+using Mohaymen.DTOs;
 using Mohaymen.Enums;
 using Mohaymen.Exceptions;
 using Mohaymen.Manager;
@@ -109,6 +110,43 @@ namespace Mohaymen.Services
             }
             
            return _messageRepository.Inbox(LocalStorage.LoginUser.Id);
+        }
+
+        public List<SentMessageDto> Sent() 
+        {
+            if (LocalStorage.LoginUser == null)
+            {
+                throw new NotLogInException("User is not logged in.");
+            }
+
+           return _messageRepository.Sent(LocalStorage.LoginUser.Id);
+        }
+
+        public void ChangePass(string oldPass  , string newPass) 
+        {
+            if (LocalStorage.LoginUser == null)
+            {
+                throw new NotLogInException("User is not logged in.");
+            } 
+            if (LocalStorage.LoginUser.Password == oldPass) 
+            {
+                 LocalStorage.LoginUser.Password=newPass;
+                _userRepository.UpdateUser(LocalStorage.LoginUser);
+            }
+            else 
+            {
+                throw new PassIsWrong("OldPassword  is wrong");
+            }
+        }
+
+        public void Logout() 
+        {
+            if (LocalStorage.LoginUser == null)
+            {
+                throw new NotLogInException("user is not log in ");
+            }
+            LocalStorage.Logout();
+
         }
     }
 }

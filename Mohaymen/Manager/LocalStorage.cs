@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Mohaymen.Exceptions;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -15,6 +16,7 @@ namespace Mohaymen.Manager
         }
         public static void Logout() 
         {
+            
             LoginUser = null;
         }
     }
