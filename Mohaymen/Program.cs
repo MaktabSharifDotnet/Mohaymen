@@ -219,6 +219,10 @@ while (true)
                         if (InstructionEnum.ChangePassword == instructionEnum)
                         {
                             ChangePassDto changePassDto = ParseChangePassCommand(commandChangePassArray);
+                            if (changePassDto.OldPass==null||changePassDto.NewPass==null) 
+                            {
+                                Console.WriteLine("old pass or newpass is wrong");
+                            }
                             try
                             {
                                 service.ChangePass(changePassDto.OldPass, changePassDto.NewPass);
