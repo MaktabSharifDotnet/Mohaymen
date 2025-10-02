@@ -9,6 +9,9 @@ namespace Mohaymen.Enums
     public enum InstructionEnum
     {
         Register,
-        Login
+        Login,
+        Change,
+        Search,
+        SendMessage
     }
 }
